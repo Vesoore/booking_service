@@ -9,9 +9,7 @@ router = APIRouter()
 
 @router.post("/book/")
 def create_booking(booking: BookingCreate, db: Session = Depends(get_db)):
-    """
-    Endpoint to create a booking while ensuring no time overlaps.
-    """
+
     if booking.start_time >= booking.end_time:
         raise HTTPException(status_code=400, detail="Invalid time range")
 
@@ -26,7 +24,6 @@ def create_booking(booking: BookingCreate, db: Session = Depends(get_db)):
     if overlapping_booking:
         raise HTTPException(status_code=400, detail="Time slot is already booked")
 
-    # Create and store new booking
     new_booking = Booking(start_time=booking.start_time, end_time=booking.end_time)
     db.add(new_booking)
     db.commit()
