@@ -2,30 +2,32 @@ version: '3.8'
 
 services:
   db:
-    image: postgres:alpine  # Образ PostgreSQL
+    image: postgres:alpine  
     container_name: postgres_db
     restart: always
     environment:
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: bookings_database
+      POSTGRES_DB: booking_database
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data  # Сохранение данных между перезапусками
+      - postgres_data:/var/lib/postgresql/data  
 
   app:
     build: .
     container_name: booking_service
     restart: always
     depends_on:
-      - db  # FastAPI запустится после PostgreSQL
+      - db  
     environment:
       DATABASE_URL: postgresql://myuser:password@db:5432/bookings_database
     ports:
       - "8000:8000"
     volumes:
-      - .:/app  # Монтируем код внутрь контейнера
+      - .:/app  
+    command: >
+      sh -c "alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
 
 volumes:
-  postgres_data:  # Персистентное хранилище для базы данных
+  postgres_data:
